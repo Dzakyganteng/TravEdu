@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TravEdu Indonesia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+
+      *{
+        scroll-behavior: smooth;
+      }
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f3f4f6;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --border-color: #e5e7eb;
+        --card-bg: #ffffff;
+        --nav-bg: rgba(255, 255, 255, 0.95);
+        --dropdown-bg: #ffffff;
+        --input-bg: transparent;
+        --input-border: #d1d5db;
+      }
+
+      html.dark-mode {
+        --bg-primary: #000000;
+        --bg-secondary: #1c1212;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --border-color: #252534;
+        --card-bg: #161616;
+        --nav-bg: rgba(21, 24, 29, 0.95);
+        --dropdown-bg: #424242;
+        --input-bg: rgba(45, 45, 45, 0.05);
+        --input-border: #646464;
+      }
+
+      /* --- Animasi Hero & UI --- */
+      .bg-layer {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        transition:
+          opacity 1.5s ease-in-out,
+          transform 10s linear;
+        opacity: 0;
+        transform: scale(1.1);
+      }
+      .bg-layer.active {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .dropdown-menu {
+        display: none;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+      }
+      .dropdown-menu.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      /* Dark Mode Classes */
+      html.dark-mode .glass-card {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      .theme-toggle {
+        position: relative;
+        width: 50px;
+        height: 28px;
+        background-color: #cbd5e1;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+      }
+
+      html.dark-mode .theme-toggle {
+        background-color: #334155;
+      }
+
+      .theme-toggle::after {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        width: 22px;
+        height: 22px;
+        background-color: white;
+        border-radius: 50%;
+        transition: left 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      html.dark-mode .theme-toggle::after {
+        left: 25px;
+      }
+
+      .lang-toggle {
+        background-color: #e5e7eb;
+        border: 2px solid #d1d5db;
+        padding: 4px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-primary);
+      }
+
+      html.dark-mode .lang-toggle {
+        background-color: #334155;
+        border-color: #475569;
+      }
+
+      .lang-toggle:hover {
+        background-color: #dc2626;
+        color: white;
+        border-color: #dc2626;
+      }
+
+      .lang-toggle.active {
+        background-color: #dc2626;
+        color: white;
+        border-color: #dc2626;
+      }
+
+      /* --- Style Peta Interaktif --- */
+      .island-path {
+        fill: #111;
+        stroke: #333;
+        stroke-width: 2;
+      }
+      .city-node {
+        fill: #ef4444;
+        stroke: rgba(255, 255, 255, 0.5);
+        stroke-width: 2;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .city-node:hover {
+        r: 12;
+        fill: #fff;
+        stroke: #ef4444;
+        filter: drop-shadow(0 0 20px #ef4444);
+      }
+
+      /* --- Progress Bar --- */
+      .progress-bg {
+        background: rgba(255, 255, 255, 0.1);
+        height: 6px;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        background: linear-gradient(90deg, #ef4444, #f97316);
+        height: 100%;
+        transition: width 0.8s ease-out;
+      }
+
+      .tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        display: none;
+        z-index: 100;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+
+        [x-cloak] { display: none !important; }
+      }
+    </style>
+  </head>
+  <body class="font-sans overflow-x-hidden" style="background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s ease, color 0.3s ease;">
+    <nav
+      x-data="{ open: false }"
+      class="fixed top-0 w-full z-50 backdrop-blur-md transition-all duration-300 shadow-sm"
+      style="background-color: var(--nav-bg); border-bottom: 1px solid var(--border-color);"
+      class="fixed top-0 w-full z-50 backdrop-blur-md transition-all duration-300 shadow-sm"
+      style="background-color: var(--nav-bg); border-bottom: 1px solid var(--border-color);"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16 relative">
+          <div class="flex-shrink-0 flex items-center">
+           <h2 class="text-2xl font-bold text-white" style="color: var(--text-primary);">Trav <span class="text-red-600">Edu</span></h2>
+          </div>
+
+          <div class="hidden md:flex space-x-8 items-center">
+            <a
+              href="#home-section"
+              class="font-medium transition"
+              style="color: var(--text-primary);"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="home"
+              >Home</a
+            >
+            <a
+              href="#about-section"
+              class="font-medium transition"
+              style="color: var(--text-primary);"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="about"
+              >About</a
+            >
+
+            <a 
+              href="Festival.html"
+              class="font-medium transition"
+              style="color : var(--text-primary)"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="festival"
+            >Festival</a>
+
+            <a 
+              href="KulinerSection.html"
+              class="font-medium transition"
+              style="color : var(--text-primary)"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="kuliner"
+            >Culinary</a>
+
+          </div>
+
+          
+          <div class="flex items-center space-x-4">
+            
+            <button
+              id="lang-toggle"
+              class="lang-toggle"
+              title="Toggle language"
+              aria-label="Toggle language"
+            >
+              <i class="fas fa-globe"></i>
+              <span id="lang-text">EN</span>
+            </button>
+
+            
+            <button
+              id="theme-toggle"
+              class="theme-toggle"
+              title="Toggle dark mode"
+              aria-label="Toggle dark mode"
+            >
+              <i class="fas fa-sun" style="color: #fbbf24; font-size: 10px; margin: 9px;"></i>
+              <i class="fas fa-moon" style="color: #60a5fa; font-size: 10px;"></i>
+            </button>
+            <button
+              id="search-btn"
+              class="p-2 transition focus:outline-none"
+              style="color: var(--text-primary);"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+            >
+              <i class="fas fa-search"></i>
+            </button>
+            <a
+              href="Contact.html"
+              class="hidden sm:block bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 shadow-lg"
+              data-i18n="explore-now"
+              >Contact</a
+            >
+            <div class="flex items-center space-x-4">
+              <div class="hidden lg:flex items-center space-x-2 bg-gray-900 text-white px-3 py-1.5 rounded-lg">
+                  <i class="fas fa-clock text-red-500 text-xs"></i>
+                  <div class="font-mono text-xs font-bold tabular-nums">
+                      <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                  </div>
+              </div>
+
+              <button
+                @click="open = !open"
+                class="md:hidden p-2"
+                aria-label="Toggle menu"
+              >
+                <i class="fas fa-bars text-xl"></i>
+              </button>
+
+
+          </div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+       <div
+        x-show="open"
+        x-cloak
+        @click.outside="open = false"
+        class="hidden md:hidden flex flex-col space-y-4 px-6 py-4 border-t"
+        >
+      <a href="#home-section">Home</a>
+      <a href="#about-section">About</a>
+      <a href="Festival.html">Festival</a>
+      <a href="KulinerSection.html">Culinary</a>
+      <a href="Contact.html" class="text-red-600">Contact</a>
+</div>
+
+      
+    </nav>
+
+    <div
+      id="search-container"
+      class="fixed top-16 left-0 right-0 z-40 backdrop-blur-lg max-h-0 overflow-hidden transition-all duration-300 shadow-sm"
+      style="background: linear-gradient(to right, var(--bg-primary), var(--bg-secondary), var(--bg-primary)); border-bottom: 1px solid var(--border-color);"
+    >
+      <div class="flex flex-col items-stretch px-4 sm:px-8 py-6 max-w-7xl mx-auto">
+        <div class="flex items-center">
+          <i class="fas fa-search text-red-600 mr-4 text-lg flex-shrink-0"></i>
+          <input
+            type="text"
+            placeholder="Search city or destination..."
+            class="w-full outline-none text-lg transition-colors duration-300 focus:ring-0 py-3"
+            style="background-color: var(--input-bg); color: var(--text-primary); border-bottom: 2px solid var(--input-border);"
+            onmouseover="this.style.borderBottomColor='#dc2626'"
+            onfocus="this.style.borderBottomColor='#dc2626'"
+            onblur="this.style.borderBottomColor='var(--input-border)'"
+            data-i18n-placeholder="placeholder_search"
+          />
+          <button
+            id="close-search"
+            class="p-2 transition-colors duration-300 ml-4 flex-shrink-0"
+            style="color: var(--text-secondary);"
+            onmouseover="this.style.color='#dc2626'"
+            onmouseout="this.style.color='var(--text-secondary)'"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+        
+        <div id="search-suggestions" class="mt-4 space-y-2"></div>
+      </div>
+    </div>
+
+    <section
+      class="relative h-screen w-full overflow-hidden flex items-center justify-center bg-gray-100"
+      id="home-section"
+    >
+      <div id="bg-container" class="absolute inset-0"></div>
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-gray-900/40 via-transparent to-gray-900/60 z-10"
+      ></div>
+      <div class="relative z-20 text-center px-6 max-w-4xl">
+        <h2
+          class="text-red-600 font-bold tracking-[0.4em] uppercase mb-4 text-sm animate-pulse"
+          data-i18n="travel_edukasi_indonesia"
+        >
+          Travel Education Indonesia
+        </h2>
+        <h1
+          class="text-5xl md:text-8xl font-black mb-6 tracking-tighter leading-none uppercase text-white"
+        >
+          Trav
+          <span
+            class="text-red-600"
+            >Edu</span
+          >
+        </h1>
+        <p
+          class="text-white text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light italic opacity-90"
+          data-i18n="pilih_kota_tujuan"
+        >
+          "Choose your destination city and see the enthusiasm of other travelers in real time."
+        </p>
+        <div
+          class="flex flex-col sm:flex-row items-center justify-center gap-4"
+        >
+          <a
+            href="#map-section"
+            class="w-full sm:w-auto px-10 py-4 bg-red-600 hover:bg-red-700 rounded-full font-bold transition-all transform hover:scale-105 shadow-xl shadow-red-600/30"
+            style=" color: white;"
+            data-i18n="mulai_perjalanan"
+            >Start Journey</a
+          >
+          <button
+            class="w-full sm:w-auto px-10 py-4 glass-card hover:bg-white/20 rounded-full font-bold transition-all border border-white/40 text-white"
+          >
+            <span data-i18n="lihat_galeri">View Gallery</span> <i class="fas fa-arrow-right ml-2 text-xs"></i>
+          </button>
+        </div>
+      </div>
+      <div
+        id="timer-bar"
+        class="absolute bottom-0 left-0 h-1 bg-red-600 z-30 transition-all ease-linear"
+        style="width: 0%"
+      ></div>
+    </section>
+
+    <section
+      id="map-section"
+      class="py-28 px-6 flex flex-col items-center"
+      style="background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));"
+    >
+      <!-- HEADER -->
+      <div class="text-center mb-20">
+        <h2
+          class="text-red-600 font-bold tracking-[0.3em] uppercase text-sm mb-3"
+          data-i18n="destinasi_pilihan"
+        >
+          Selected Destinations
+        </h2>
+        <h1 class="text-4xl md:text-6xl font-black italic" style="color: var(--text-primary);">
+          <span data-i18n="kota"></span> <span data-i18n="terbaik"></span>
+        </h1>
+        <p class="mt-6 max-w-xl mx-auto" style="color: var(--text-secondary);" data-i18n="pilih_kota_tujuan_desc">
+          Choose a destination city to see the details of tourism, culture, and its attractions.
+        </p>
+      </div>
+
+      <!-- GRID KOTA -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl"
+      >
+        <!-- JAKARTA -->
+        <div
+          onclick="goCity('Jakarta')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative hover:scale-[1.04] transition-all duration-300 hover:shadow-lg"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://travelinkmagz.com/wp-content/uploads/2020/04/JKT_Monas_1920x1080px_1.jpg"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          <div class="relative p-8 h-full flex flex-col justify-end">
+            <div class="mb-2">
+              <span class="bg-[#7B4A12] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest"
+              data-i18n="Label_Pulau_Jawa"
+              >pulau Jawa</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2" style="color: var(--text-primary);">Jakarta</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">
+              <span data-i18n="metropolitan">Metropolitan</span> • <span data-i18n="sejarah">History</span> • <span data-i18n="urban">Urban</span>
+            </p>
+            <span class="text-red-600 font-bold text-sm" data-i18n="jelajahi_kota">
+              Explore City →
+            </span>
+          </div>
+        </div>
+
+        <!-- BANDUNG -->
+        <div
+          onclick="goCity('Bandung')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative hover:scale-[1.04] transition-all duration-300 hover:shadow-lg"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://idetrips.com/wp-content/uploads/2020/07/kawah-ratu-tangkuban-parahu.jpg"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          <div class="relative p-8 h-full flex flex-col justify-end">
+            <div class="mb-2">
+              <span class="bg-[#7B4A12] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">pulau Jawa</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2" style="color: var(--text-primary);">Bandung</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);"><span data-i18n="alam">Nature</span> • <span data-i18n="kreatif">Creative</span> • <span data-i18n="kuliner">Culinary</span></p>
+            <span class="text-red-600 font-bold text-sm" data-i18n="jelajahi_kota">
+              Explore City →
+            </span>
+          </div>
+        </div>
+
+        <!-- BALI -->
+        <div
+          onclick="goCity('Bali')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative hover:scale-[1.04] transition-all duration-300 hover:shadow-lg"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://www.theungasan.com/wp-content/uploads/2020/01/Tanah-Lot-Temple.jpg"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          <div class="relative p-8 h-full flex flex-col justify-end">
+            <div class="mb-2">
+              <span class="bg-[#D4AF37] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">pulau Bali</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2" style="color: var(--text-primary);">Bali</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">
+              <span data-i18n="budaya">Culture</span> • <span data-i18n="pantai">Beach</span> • <span data-i18n="spiritual">Spiritual</span>
+            </p>
+            <span class="text-red-600 font-bold text-sm" data-i18n="jelajahi_kota">
+              Explore City →
+            </span>
+          </div>
+        </div>
+
+        <!-- MALANG -->
+        <div
+          onclick="goCity('Malang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative hover:scale-[1.04] transition-all duration-300 hover:shadow-lg"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://www.bugbog.com/wp-content/uploads/2022/05/dc76a908affc27f2/mount-bromo.jpeg"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          <div class="relative p-8 h-full flex flex-col justify-end">
+            <div class="mb-2">
+              <span class="bg-[#7B4A12] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">pulau Jawa</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2" style="color: var(--text-primary);">Malang</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">
+              <span data-i18n="pegunungan">Mountains</span> • <span data-i18n="edukasi">Education</span> • <span data-i18n="alam">Nature</span>
+            </p>
+            <span class="text-red-600 font-bold text-sm" data-i18n="jelajahi_kota">
+              Explore City →
+            </span>
+          </div>
+        </div>
+
+        <!-- JOGJA -->
+        <div
+          onclick="goCity('Jogja')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative hover:scale-[1.04] transition-all duration-300 hover:shadow-lg"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://2.bp.blogspot.com/-kBJIgYcYtzo/Vqt7vCnT1LI/AAAAAAAABQ0/nYxWtho7zik/s1600/2.jpg"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          <div class="relative p-8 h-full flex flex-col justify-end">
+            <div class="mb-2">
+              <span class="bg-[#7B4A12] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">pulau Jawa</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2" style="color: var(--text-primary);">Jogja</h3>
+            <p class="text-sm mb-4" style="color: var(--text-secondary);">Budaya • Sejarah • Edukasi</p>
+            <span class="text-red-600 font-bold text-sm">
+              Jelajahi Kota →
+            </span>
+          </div>
+        </div>
+
+
+        <!-- Makassar -->
+
+                <div
+          onclick="goCity('Makassar')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://tse4.mm.bing.net/th/id/OIP.nYap79INeOwpGQMJctYXHAHaFj?pid=Api&h=220&P=0"
+            alt="Makassar Cityscape"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+              <div class="mb-2">
+                <span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Sulawesi </span>
+              </div>
+            <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Makassar
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Maritim • Kuliner • Sejarah Bahari
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manado  -->
+
+              <div
+        onclick="goCity('Manado')"
+        class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+        style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+      >
+        <img
+          src="https://tourfiona.wordpress.com/wp-content/uploads/2016/02/sunset-boulevard-manado.jpg"
+          alt="Manado Cityscape"
+          class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+        />
+        
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+        <div class="relative p-8 h-full flex flex-col justify-end z-10">
+          <div class="mb-2">
+            <span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Sulawesi </span>
+          </div>
+          <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+            Manado
+          </h3>
+          <p class="text-sm mb-4 text-gray-300 font-medium">
+            Bawah Laut • Religi • Ekosistem
+          </p>
+          
+          <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+              <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+              <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- balikpapan  -->
+
+            <div
+        onclick="goCity('Balikpapan')"
+        class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+        style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+      >
+        <img
+          src="https://tourfiona.wordpress.com/wp-content/uploads/2016/02/sunset-boulevard-manado.jpg"
+          alt="Balikpapan Cityscape"
+          class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+        />
+        
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+        <div class="relative p-8 h-full flex flex-col justify-end z-10">
+          <div class="mb-2">
+            <span class="bg-green-800 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">pulau Kalimantan </span>
+          </div>
+          <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+            Balikpapan
+          </h3>
+          <p class="text-sm mb-4 text-gray-300 font-medium">
+            Industri • Konservasi • Pesisir
+          </p>
+          
+          <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+              <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+              <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- pontianak -->
+
+
+        <div
+          onclick="goCity('Pontianak')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://tse3.mm.bing.net/th/id/OIP.KtJn6-xxC2MEeUq23n8kAAHaGL?pid=Api&h=220&P=0"
+            alt="Pontianak Equator Monument"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-green-800 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Kalimantan</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Pontianak
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Khatulistiwa • Kapuas • Akulturasi
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medan -->
+
+                <div
+          onclick="goCity('Medan')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://cdn.britannica.com/36/123136-050-30F29A3F/Mosque-Medan-North-Sumatra-Indonesia.jpg"
+            alt="Medan Heritage"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Sumatera </span>
+            </div>
+            <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Medan
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Heritage • Kuliner • Multikultural
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- palembang  -->
+
+                <div
+          onclick="goCity('Palembang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://tse3.mm.bing.net/th/id/OIP.58MAXflg7NpR7NBDKs9n3QHaEK?pid=Api&h=220&P=0"
+            alt="Palembang Ampera Bridge"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Sumatera</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Palembang
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Sriwijaya • Musi • Pempek
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+         <!-- padang -->
+
+               <div
+          onclick="goCity('Palembang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://ecs7.tokopedia.net/blog-tokopedia-com/uploads/2018/04/wisata-padang-Flickr.jpg"
+            alt="Palembang Ampera Bridge"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Sumatera</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              padang
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Minangkabau • Padang • Rumah Gadang
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+      <!-- jayapura -->
+
+      <div
+          onclick="goCity('Palembang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://ecs7.tokopedia.net/blog-tokopedia-com/uploads/2019/01/wisata-jayapura-5-Harian-Papua.png"
+            alt="Palembang Ampera Bridge"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-sky-700 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Papua</span>
+            </div>
+            <h3 class="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              jayapura
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Papua • Cycloop • Budaya Papua
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mataram -->
+        <div
+          onclick="goCity('Palembang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://tse1.mm.bing.net/th/id/OIP.225JlNmVCXs443NQD5i5_QHaEK?pid=Api&h=220&P=0"
+            alt="Palembang Ampera Bridge"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-sky-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Lombok  </span>
+            </div>
+            <h3 class=" text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Mataram
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              Lombok • Mataram • Budaya Sasak
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+
+      <!-- Kupang -->
+
+      <div
+          onclick="goCity('Palembang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://cdn.britannica.com/35/123135-050-2F12E7F8/Port-Kupang-Timor-island-Indon-East-Nusa.jpg"
+            alt="Palembang Ampera Bridge"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition"
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-[#D4AF37] text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Timor</span>
+            </div>
+            <h3 class=" text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Kupang
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+              NTT • Kupang • Budaya Timor
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- ambon -->
+
+        <div
+          onclick="goCity('Palembang')"
+          class="group cursor-pointer glass-card rounded-3xl overflow-hidden relative h-[400px] hover:scale-[1.04] transition-all duration-300 hover:shadow-2xl"
+          style="background-color: var(--card-bg); border: 1px solid var(--border-color);"
+        >
+          <img
+            src="https://media.suara.com/pictures/970x544/2023/02/09/66894-pantai-ora-salah-satu-tempat-wisata-di-ambon-dok-dinas-pariwisata-provinsi-maluku.jpg  "
+            alt="Palembang Ampera Bridge"
+            class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition "
+          />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
+
+          <div class="relative p-8 h-full flex flex-col justify-end z-10">
+            <div class="mb-2">
+              <span class="bg-sky-700 text-[#D4AF37] text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Pulau Maluku</span>
+            </div>
+            <h3 class=" text-3xl font-black mb-2 text-white uppercase tracking-tighter">
+              Ambon
+            </h3>
+            <p class="text-sm mb-4 text-gray-300 font-medium">
+             Maluku • Banda • Rempah Nusantara
+            </p>
+            
+            <div class="flex items-center space-x-2 text-red-500 group-hover:text-red-400 transition">
+                <span class="font-black text-sm uppercase tracking-wider">Jelajahi Kota</span>
+                <i class="fas fa-arrow-right text-xs transform group-hover:translate-x-2 transition"></i>
+            </div>
+          </div>
+        </div>
+ 
+
+      </div>
+    </section>
+
+    <!-- ABOUT US SECTION -->
+    <section
+      id="about-section"
+      class="py-28 px-6"
+      style="background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));"
+    >
+      <div class="max-w-6xl mx-auto">
+        <!-- HEADER -->
+        <div class="text-center mb-20">
+          <h2
+            class="text-red-600 font-bold tracking-[0.3em] uppercase text-sm mb-3"
+            data-i18n="about_us"
+          >
+            About Us
+          </h2>
+          <h1 class="text-4xl md:text-6xl font-black italic" style="color: var(--text-primary);">
+            <span data-i18n="who_we_are">Who We Are</span>
+          </h1>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+          <!-- TEXT CONTENT -->
+          <div>
+            <p class="text-lg mb-6 leading-relaxed" style="color: var(--text-secondary);">
+              <span data-i18n="about_intro">TravEdu Indonesia is your ultimate platform for discovering the rich culture, cuisine, and attractions across Indonesia's most beautiful destinations.</span>
+            </p>
+            <p class="text-lg mb-6 leading-relaxed" style="color: var(--text-secondary);">
+              <span data-i18n="about_mission">We believe that travel is not just about visiting places—it's about learning, experiencing, and connecting with the local communities and traditions.</span>
+            </p>
+            <p class="text-lg mb-8 leading-relaxed" style="color: var(--text-secondary);">
+              <span data-i18n="about_vision">Our mission is to make travel information accessible, inspiring, and educational for everyone, helping you explore Indonesia with confidence and curiosity.</span>
+            </p>
+            <div class="flex gap-4 flex-wrap">
+              <div>
+                <h3 class="text-4xl font-black text-red-600 mb-2">5+</h3>
+                <p style="color: var(--text-secondary);" data-i18n="featured_cities">Featured Cities</p>
+              </div>
+              <div>
+                <h3 class="text-4xl font-black text-red-600 mb-2">1000+</h3>
+                <p style="color: var(--text-secondary);" data-i18n="attractions">Attractions</p>
+              </div>
+              <div>
+                <h3 class="text-4xl font-black text-red-600 mb-2">500+</h3>
+                <p style="color: var(--text-secondary);" data-i18n="restaurants">Restaurants</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- IMAGE/VISUAL -->
+          <div class="relative h-96">
+            <div class="absolute inset-0 glass-card rounded-3xl overflow-hidden" style="background-color: var(--card-bg); border: 2px solid var(--border-color);">
+              <div class="w-full h-full bg-gradient-to-br from-red-600/20 to-red-600/5 flex items-center justify-center">
+                <div class="text-center">
+                  <i class="fas fa-globe text-6xl text-red-600 mb-4"></i>
+                  <p class="text-xl font-bold" style="color: var(--text-primary);" data-i18n="explore_indonesia">Explore Indonesia</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VALUES/FEATURES -->
+        <div class="mb-20">
+          <h3 class="text-3xl font-black mb-12 text-center" style="color: var(--text-primary);">
+            <span data-i18n="our_features">Our Features</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- FEATURE 1 -->
+            <div class="glass-card rounded-2xl p-8" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+              <div class="text-4xl text-red-600 mb-4">
+                <i class="fas fa-map-location-dot"></i>
+              </div>
+              <h4 class="text-xl font-bold mb-4" style="color: var(--text-primary);" data-i18n="comprehensive_guides">Comprehensive Guides</h4>
+              <p style="color: var(--text-secondary);" data-i18n="feature_guides">Detailed information about destinations, attractions, and local experiences curated for travelers.</p>
+            </div>
+
+            <!-- FEATURE 2 -->
+            <div class="glass-card rounded-2xl p-8" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+              <div class="text-4xl text-red-600 mb-4">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <h4 class="text-xl font-bold mb-4" style="color: var(--text-primary);" data-i18n="culinary_discoveries">Culinary Discoveries</h4>
+              <p style="color: var(--text-secondary);" data-i18n="feature_culinary">Explore authentic Indonesian cuisine and local restaurants in each destination.</p>
+            </div>
+
+            <!-- FEATURE 3 -->
+            <div class="glass-card rounded-2xl p-8" style="background-color: var(--card-bg); border: 1px solid var(--border-color);">
+              <div class="text-4xl text-red-600 mb-4">
+                <i class="fas fa-users"></i>
+              </div>
+              <h4 class="text-xl font-bold mb-4" style="color: var(--text-primary);" data-i18n="community">Community</h4>
+              <p style="color: var(--text-secondary);" data-i18n="feature_community">Connect with fellow travelers and see their experiences in real time.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center">
+          <p class="text-lg mb-8 max-w-2xl mx-auto" style="color: var(--text-secondary);">
+            <span data-i18n="start_journey_text">Ready to start your educational journey through Indonesia?</span>
+          </p>
+          <a
+            href="#map-section"
+            class="inline-block px-10 py-4 bg-red-600 hover:bg-red-700 rounded-full font-bold transition-all transform hover:scale-105 shadow-xl shadow-red-600/30 text-white"
+            data-i18n="explore_now"
+          >
+            Explore Now
+          </a>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Footer Start -->
+      <footer class="bg-black text-gray-300 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold text-white">Trav <span class="text-red-600">Edu</span></h2>
+          <p class="text-sm leading-relaxed text-gray-400">
+            Platform edukasi perjalanan dan kuliner terbaik di Indonesia. Jelajahi keindahan nusantara dan pelajari budaya lokal bersama kami.
+          </p>
+          <div class="flex space-x-4 pt-2">
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-facebook-f text-white"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-instagram text-white"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-twitter text-white"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-youtube text-white"></i>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider">Quick Links</h3>
+          <ul class="space-y-3 text-sm">
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Home</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">About Us</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Festival Calendar</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Food Culinary Guide</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Destinations</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider text-sm">Contact Info</h3>
+          <ul class="space-y-4">
+            <li class="flex items-start space-x-3">
+              <i class="fas fa-map-marker-alt text-red-600 mt-1"></i>
+              <span class="text-sm">Jl. Pendidikan No. 123, Jakarta Selatan, Indonesia</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <i class="fas fa-phone-alt text-red-600"></i>
+              <span class="text-sm">+62 812 3456 7890</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <i class="fas fa-envelope text-red-600"></i>
+              <span class="text-sm">support@travedu.com</span>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider text-sm">Newsletter</h3>
+          <p class="text-sm text-gray-400 mb-4">Dapatkan info festival terbaru langsung di email Anda.</p>
+          <form class="flex flex-col space-y-2">
+            <input type="email" placeholder="Email Address" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 text-white">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition duration-300 text-sm">
+              Subscribe Now
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+        <p>&copy; 2026 Trav Edu. All rights reserved.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="hover:text-white transition">Privacy Policy</a>
+          <a href="#" class="hover:text-white transition">Terms of Service</a>
+          <a href="#" class="hover:text-white transition">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+<!-- Footer Selesai -->
+
+    <script src="../js/script.js"></script>
+    <script>
+        // Loading & Transition
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loading-overlay');
+            const mainContent = document.getElementById('main-content');
+            
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                mainContent.style.opacity = '1';
+                setTimeout(() => loader.style.display = 'none', 1000);
+            }, 2000); // 2 Detik loading agar elegan
+        });
+      // Clock Function
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('hours').textContent = String(now.getHours()).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(now.getSeconds()).padStart(2, '0');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Calendar Plan
+        flatpickr("#holiday-calendar", {
+            mode: "range",
+            minDate: "today",
+            dateFormat: "d/m/y"
+        });
+    </script>
+  </body>
+</html>

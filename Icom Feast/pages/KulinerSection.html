@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TravEdu Indonesia - Food Culinary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f3f4f6;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --border-color: #e5e7eb;
+        --card-bg: #ffffff;
+        --nav-bg: rgba(255, 255, 255, 0.95);
+        --dropdown-bg: #ffffff;
+        --input-bg: transparent;
+        --input-border: #d1d5db;
+      }
+
+      html.dark-mode {
+        --bg-primary: #000000;
+        --bg-secondary: #1c1212;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --border-color: #252534;
+        --card-bg: #161616;
+        --nav-bg: rgba(21, 24, 29, 0.95);
+        --dropdown-bg: #424242;
+        --input-bg: rgba(45, 45, 45, 0.05);
+        --input-border: #646464;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .dropdown-menu {
+        display: none;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+      }
+      .dropdown-menu.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .dropdown-container:hover .dropdown-menu {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .lang-toggle {
+        background-color: #e5e7eb;
+        border: 2px solid #d1d5db;
+        padding: 4px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-primary);
+      }
+
+      html.dark-mode .lang-toggle {
+        background-color: #334155;
+        border-color: #475569;
+      }
+
+      .lang-toggle:hover {
+        background-color: #dc2626;
+        color: white;
+        border-color: #dc2626;
+      }
+
+      .theme-toggle {
+        position: relative;
+        width: 50px;
+        height: 28px;
+        background-color: #cbd5e1;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+      }
+
+      html.dark-mode .theme-toggle {
+        background-color: #334155;
+      }
+
+      .theme-toggle::after {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        width: 22px;
+        height: 22px;
+        background-color: white;
+        border-radius: 50%;
+        transition: left 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      html.dark-mode .theme-toggle::after {
+        left: 25px;
+      }
+
+      /* Memperbaiki class active yang sebelumnya dikomen */
+      .category-pill.active {
+        background-color: #ef4444 !important;
+        color: white !important;
+      }
+    </style>
+  </head>
+  <body class="font-sans overflow-x-hidden pt-16">
+    <nav
+      class="fixed top-0 w-full z-50 backdrop-blur-md transition-all duration-300 shadow-sm"
+      style="background-color: var(--nav-bg); border-bottom: 1px solid var(--border-color);"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16 relative">
+          <div class="flex-shrink-0 flex items-center">
+            <span
+              class="text-2xl font-bold text-red-600 cursor-pointer"
+              >Trav Edu</span
+            >
+          </div>
+
+          <div class="hidden md:flex space-x-8 items-center">
+            <a
+              href="index.html#h"
+              class="font-medium transition"
+              style="color: var(--text-primary);"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="home"
+              >Home</a
+            >
+            <a
+              href="index.html#about-section"
+              class="font-medium transition"
+              style="color: var(--text-primary);"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="about"
+              >About</a
+            >
+
+            <a 
+              href="Festival.html"
+              class="font-medium transition"
+              style="color : var(--text-primary)"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="festival"
+            >Festival</a>
+
+            <a 
+              href="KulinerSection.html"
+              class="font-medium transition"
+              style="color : var(--text-primary)"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+              data-i18n="kuliner"
+            >Culinary</a>
+
+          </div>
+
+
+            <div class="flex items-center space-x-4">
+
+            <button
+              id="lang-toggle"
+              class="lang-toggle"
+              title="Toggle language"
+              aria-label="Toggle language"
+            >
+              <i class="fas fa-globe"></i>
+              <span id="lang-text">EN</span>
+            </button>
+
+            
+            <button
+              id="theme-toggle"
+              class="theme-toggle"
+              title="Toggle dark mode"
+              aria-label="Toggle dark mode"
+            >
+              <i class="fas fa-sun" style="color: #fbbf24; font-size: 10px; margin: 9px;"></i>
+              <i class="fas fa-moon" style="color: #60a5fa; font-size: 10px;"></i>
+            </button>
+            <button
+              id="search-btn"
+              class="p-2 transition focus:outline-none"
+              style="color: var(--text-primary);"
+              onmouseover="this.style.color='#dc2626'"
+              onmouseout="this.style.color='var(--text-primary)'"
+            >
+              <i class="fas fa-search"></i>
+            </button>
+            <a
+              href="Contact.html"
+              class="hidden sm:block bg-red-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-red-700 shadow-lg"
+              data-i18n="explore-now"
+              >Contact</a
+            >
+
+
+        </div>
+            
+
+      </div>
+    </nav>
+
+    <header class="bg-gradient-to-r text-white py-16 px-6 text-center" >
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-4"
+          style="color: var(--text-primary);">
+        Explore Indonesia's Culinary Treasures
+      </h2>
+      <p class="text-lg opacity-90 max-w-2xl mx-auto"
+        style="color: var(--text-secondary);">
+        Discover authentic food and beverages from various regions across Indonesia.
+      </p>
+    </header>
+
+   <section class="container mx-auto px-6 py-8">
+      <div
+        class="flex flex-wrap justify-center gap-3 mb-12"
+        id="filter-buttons"
+      >
+        <button
+          onclick="filterSelection('semua')"
+          class="category-pill active px-6 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+        >
+          Semua
+        </button>
+        <button
+          onclick="filterSelection('Bali')"
+          class="category-pill px-6 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+        >
+          Bali
+        </button>
+        <button
+          onclick="filterSelection('Jogja')"
+          class="category-pill px-6 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+        >
+          Jogja
+        </button>
+        <button
+          onclick="filterSelection('Jakarta')"
+          class="category-pill px-6 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+        >
+          Jakarta
+        </button>
+        <button
+          onclick="filterSelection('Malang')"
+          class="category-pill px-6 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+        >
+          Malang
+        </button>
+        <button
+          onclick="filterSelection('Bandung')"
+          class="category-pill px-6 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+        >
+          Bandung
+        </button>
+      </div>
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        id="menu-container"
+      ></div>
+    </section>
+
+    <div
+      id="detail-modal"
+      class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl transform transition-all"
+      >
+        <div class="relative">
+          <img id="modal-img" src="" alt="" class="w-full h-64 object-cover" />
+          <button
+            onclick="closeModal()"
+            class="absolute top-4 right-4 bg-white/90 rounded-full p-2 shadow-lg hover:bg-white transition"
+          >
+            <i class="fas fa-times text-gray-800"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="modal-tipe"
+              class="text-[10px] font-bold uppercase tracking-widest text-red-500 bg-red-50 px-2 py-1 rounded"
+            ></span>
+            <span id="modal-asal" class="text-xs text-gray-500"></span>
+          </div>
+          <h2 id="modal-nama" class="text-2xl font-bold mb-3"></h2>
+          <p
+            id="modal-desc"
+            class="text-gray-600 leading-relaxed mb-6 text-sm"
+          ></p>
+          <button
+            onclick="closeModal()"
+            class="w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow-lg shadow-red-200"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+   <!-- Footer Start -->
+      <footer class="bg-black text-gray-300 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold text-white">Trav <span class="text-red-600">Edu</span></h2>
+          <p class="text-sm leading-relaxed text-gray-400">
+            Platform edukasi perjalanan dan kuliner terbaik di Indonesia. Jelajahi keindahan nusantara dan pelajari budaya lokal bersama kami.
+          </p>
+          <div class="flex space-x-4 pt-2">
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-facebook-f text-white"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-instagram text-white"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-twitter text-white"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition duration-300">
+              <i class="fab fa-youtube text-white"></i>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider">Quick Links</h3>
+          <ul class="space-y-3 text-sm">
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Home</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">About Us</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Festival Calendar</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Food Culinary Guide</a></li>
+            <li><a href="#" class="hover:text-red-500 transition border-b border-transparent hover:border-red-500">Destinations</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider text-sm">Contact Info</h3>
+          <ul class="space-y-4">
+            <li class="flex items-start space-x-3">
+              <i class="fas fa-map-marker-alt text-red-600 mt-1"></i>
+              <span class="text-sm">Jl. Pendidikan No. 123, Jakarta Selatan, Indonesia</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <i class="fas fa-phone-alt text-red-600"></i>
+              <span class="text-sm">+62 812 3456 7890</span>
+            </li>
+            <li class="flex items-center space-x-3">
+              <i class="fas fa-envelope text-red-600"></i>
+              <span class="text-sm">support@travedu.com</span>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider text-sm">Newsletter</h3>
+          <p class="text-sm text-gray-400 mb-4">Dapatkan info festival terbaru langsung di email Anda.</p>
+          <form class="flex flex-col space-y-2">
+            <input type="email" placeholder="Email Address" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 text-white">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition duration-300 text-sm">
+              Subscribe Now
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+        <p>&copy; 2026 Trav Edu. All rights reserved.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="hover:text-white transition">Privacy Policy</a>
+          <a href="#" class="hover:text-white transition">Terms of Service</a>
+          <a href="#" class="hover:text-white transition">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+<!-- Footer Selesai -->
+    
+<script src="../js/kuliner.js"></script>
+
+  </body>
+</html>
